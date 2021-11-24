@@ -7,7 +7,7 @@
 * FreeMarker
 * Liquibase
 * Bootstrap 5
-Дополнительно
+
 ***
 создается 3 юзера
 * user1, user2, user3
