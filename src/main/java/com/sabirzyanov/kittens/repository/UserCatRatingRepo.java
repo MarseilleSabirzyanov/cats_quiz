@@ -14,7 +14,7 @@ public interface UserCatRatingRepo extends CrudRepository<UserCatRating, Long> {
 
     Iterable<UserCatRating> findAllByUserOrderByRating(User user);
 
-    //TODO join fetch wont work
+    //TODO join fetch doesn't work
     @Query("SELECT new com.sabirzyanov.kittens.repository.TotalRating(c.id, c.name, c.filename, SUM(ucr.rating)) " +
             "FROM UserCatRating ucr join ucr.cat c GROUP BY c.id, c.name ORDER BY SUM(ucr.rating) DESC")
     List<TotalRating> sumTotalRating();
