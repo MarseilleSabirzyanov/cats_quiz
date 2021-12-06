@@ -3,7 +3,7 @@ package com.sabirzyanov.kittens.service;
 import com.sabirzyanov.kittens.domain.User;
 import com.sabirzyanov.kittens.repository.CatRepo;
 import com.sabirzyanov.kittens.repository.TotalRating;
-import com.sabirzyanov.kittens.repository.UserCatRatingRepo;
+import com.sabirzyanov.kittens.repository.UserCatsPairRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,22 +12,18 @@ import java.util.List;
 public class RatingService {
 
     private final CatRepo catRepo;
-    private final UserCatRatingRepo userCatRatingRepo;
+    private final UserCatsPairRepo userCatsPairRepo;
 
-    public RatingService(CatRepo catRepo, UserCatRatingRepo userCatRatingRepo) {
+    public RatingService(CatRepo catRepo, UserCatsPairRepo userCatsPairRepo) {
         this.catRepo = catRepo;
-        this.userCatRatingRepo = userCatRatingRepo;
-    }
-
-    public List<TotalRating> findRatingList() {
-        return userCatRatingRepo.sumTotalRating();
+        this.userCatsPairRepo = userCatsPairRepo;
     }
 
     public List<TotalRating> getUserRating(User user) {
-        return userCatRatingRepo.sumUserRating(user);
+        return userCatsPairRepo.sumUserRating(user);
     }
 
     public List<TotalRating> getTotalRating() {
-        return userCatRatingRepo.sumTotalRating();
+        return userCatsPairRepo.sumTotalRating();
     }
 }

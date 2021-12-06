@@ -73,7 +73,31 @@
     </changeSet>
 
     <changeSet id="1.0.3" author="m.sabirzyanov">
-        <createTable tableName="user_cat_rating">
+        <createTable tableName="usr_role">
+            <column name="user_id" type="BIGINT" />
+
+            <column name="role_id" type="BIGINT" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.4" author="m.sabirzyanov">
+        <createTable tableName="cats_pair">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="now()"/>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="now()"/>
+
+            <column name="left_cat_id" type="BIGINT" />
+
+            <column name="right_cat_id" type="BIGINT" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.5" author="m.sabirzyanov">
+        <createTable tableName="user_cats_pair">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -84,15 +108,9 @@
 
             <column name="user_id" type="BIGINT" />
 
-            <column name="cat_id" type="BIGINT" />
-        </createTable>
-    </changeSet>
+            <column name="pair_id" type="BIGINT" />
 
-    <changeSet id="1.0.4" author="m.sabirzyanov">
-        <createTable tableName="usr_role">
-            <column name="user_id" type="BIGINT" />
-
-            <column name="role_id" type="BIGINT" />
+            <column name="winner_cat_id" type="BIGINT" />
         </createTable>
     </changeSet>
 
@@ -121,7 +139,7 @@
     </changeSet>
 
     <changeSet id="1.1.3" author="m.sabirzyanov">
-        <addForeignKeyConstraint baseTableName="user_cat_rating" baseColumnNames="cat_id" constraintName="fk_user_cat_rating_cat"
+        <addForeignKeyConstraint baseTableName="cats_pair" baseColumnNames="left_cat_id" constraintName="fk_cats_pair_left_cat_id"
                                  onDelete="CASCADE"
                                  onUpdate="RESTRICT"
                                  referencedTableName="cat"
@@ -129,10 +147,34 @@
     </changeSet>
 
     <changeSet id="1.1.4" author="m.sabirzyanov">
-        <addForeignKeyConstraint baseTableName="user_cat_rating" baseColumnNames="user_id" constraintName="fk_usr_kitten_usr"
+        <addForeignKeyConstraint baseTableName="cats_pair" baseColumnNames="right_cat_id" constraintName="fk_cats_pair_right_cat_id"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedTableName="cat"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="1.1.5" author="m.sabirzyanov">
+        <addForeignKeyConstraint baseTableName="user_cats_pair" baseColumnNames="user_id" constraintName="user_cats_pair_usr"
                                  onDelete="CASCADE"
                                  onUpdate="RESTRICT"
                                  referencedTableName="usr"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="1.1.6" author="m.sabirzyanov">
+        <addForeignKeyConstraint baseTableName="user_cats_pair" baseColumnNames="pair_id" constraintName="user_cats_pair_cats_pair"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedTableName="cats_pair"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="1.1.7" author="m.sabirzyanov">
+        <addForeignKeyConstraint baseTableName="user_cats_pair" baseColumnNames="winner_cat_id" constraintName="user_cats_pair_cat"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedTableName="cat"
                                  referencedColumnNames="id"/>
     </changeSet>
 

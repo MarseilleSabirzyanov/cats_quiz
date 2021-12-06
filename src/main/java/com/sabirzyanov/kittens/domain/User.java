@@ -38,9 +38,6 @@ public class User extends BaseEntity implements UserDetails {
             fetch = FetchType.LAZY)
     private List<Cat> userCats;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<UserCatRating> userCatRatings;
-
     public User(String username, String password, boolean active, Set<Role> roles) {
         this.username = username;
         this.password = password;

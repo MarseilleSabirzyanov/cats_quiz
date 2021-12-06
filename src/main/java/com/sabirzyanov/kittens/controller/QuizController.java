@@ -1,6 +1,7 @@
 package com.sabirzyanov.kittens.controller;
 
 import com.sabirzyanov.kittens.domain.Cat;
+import com.sabirzyanov.kittens.domain.CatsPair;
 import com.sabirzyanov.kittens.domain.User;
 import com.sabirzyanov.kittens.service.QuizService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,8 +33,8 @@ public class QuizController {
     }
 
     @PostMapping(params = "quiz")
-    public String startQuiz(Model model) {
-        quizService.startQuiz(model);
+    public String startQuiz(@AuthenticationPrincipal User user, Model model) {
+        quizService.startQuiz(model, user);
 
         return "quiz";
     }
@@ -42,17 +43,19 @@ public class QuizController {
     public String leftCat(
             @AuthenticationPrincipal User user,
             @RequestParam("leftCatId") Cat cat,
+            @RequestParam("pairId") CatsPair pair,
             Model model
     ) {
-        return quizService.setRoundWinner(cat, model, user);
+        return quizService.setRoundWinner(cat, model, user, pair);
     }
 
     @PostMapping(params = "rightCat")
     public String rightCat(
             @AuthenticationPrincipal User user,
             @RequestParam("rightCatId") Cat cat,
+            @RequestParam("pairId") CatsPair pair,
             Model model
     ) {
-        return quizService.setRoundWinner(cat, model, user);
+        return quizService.setRoundWinner(cat, model, user, pair);
     }
 }
