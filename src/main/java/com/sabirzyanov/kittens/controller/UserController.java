@@ -1,7 +1,11 @@
 package com.sabirzyanov.kittens.controller;
 
+import com.sabirzyanov.kittens.DTO.CatDto;
+import com.sabirzyanov.kittens.DTO.UserDto;
+import com.sabirzyanov.kittens.convertor.UserConvertor;
 import com.sabirzyanov.kittens.domain.User;
 import com.sabirzyanov.kittens.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,21 +17,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import java.io.IOException;
+import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/profile")
 public class UserController {
 
     final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    final UserConvertor userConvertor;
 
     @GetMapping
     public String profile(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("username", user.getUsername());
-        model.addAttribute("cats", userService.findCatsByUser(user));
+        model.addAttribute("cats", userService.findCatsByUser(user.getId()));
 
         return "profile";
     }
@@ -40,9 +43,10 @@ public class UserController {
             @RequestParam("file") @NotBlank MultipartFile file
     ) throws IOException {
 
-        userService.addCat(user, catName, file);
+        UserDto userDto = userConvertor.convertToUserDto(user);
+        userService.addCat(userDto, catName, file);
         model.addAttribute("username", user.getUsername());
-        model.addAttribute("cats", userService.findCatsByUser(user));
+        model.addAttribute("cats", userService.findCatsByUser(userDto.getId()));
 
         return "profile";
     }

@@ -37,7 +37,7 @@ public class LoginController {
         return "login";
     }
 
-    @PostMapping("/login")
+/*    @PostMapping("/login")
     public String loginUser(@RequestParam String username,
                             @RequestParam String password,
                             BindingResult bindingResult,
@@ -61,6 +61,6 @@ public class LoginController {
             return "login";
         }
         return "redirect:/profile";
-    }
+    }*/
 
 }

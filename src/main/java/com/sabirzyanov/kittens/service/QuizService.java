@@ -1,5 +1,9 @@
 package com.sabirzyanov.kittens.service;
 
+import com.sabirzyanov.kittens.DTO.CatDto;
+import com.sabirzyanov.kittens.DTO.UserDto;
+import com.sabirzyanov.kittens.convertor.CatConvertor;
+import com.sabirzyanov.kittens.convertor.UserConvertor;
 import com.sabirzyanov.kittens.domain.Cat;
 import com.sabirzyanov.kittens.domain.CatsPair;
 import com.sabirzyanov.kittens.domain.User;
@@ -7,6 +11,8 @@ import com.sabirzyanov.kittens.domain.UserCatsPair;
 import com.sabirzyanov.kittens.repository.CatRepo;
 import com.sabirzyanov.kittens.repository.CatsPairRepo;
 import com.sabirzyanov.kittens.repository.UserCatsPairRepo;
+import com.sabirzyanov.kittens.repository.UserRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -14,26 +20,25 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class QuizService {
     final CatRepo catRepo;
     final UserCatsPairRepo userCatsPairRepo;
     final CatsPairRepo catsPairRepo;
+    final CatConvertor catConvertor;
+    final UserConvertor userConvertor;
+    final UserRepo userRepo;
 
-    public QuizService(CatRepo catRepo, UserCatsPairRepo userCatsPairRepo, CatsPairRepo catsPairRepo) {
-        this.catRepo = catRepo;
-        this.userCatsPairRepo = userCatsPairRepo;
-        this.catsPairRepo = catsPairRepo;
-    }
-
-    public void startQuiz(Model model, User user) {
+    public void startQuiz(Model model, UserDto userDto) {
+        User user = userRepo.findById(userDto.getId()).get();
         prepareAllPairs();
         prepareUserCatsPair(user);
         List<CatsPair> pairs = catsPairRepo.findAll();
         if (!pairs.isEmpty()) {
             Collections.shuffle(pairs);
-            model.addAttribute("leftCat", pairs.get(0).getLeftCat());
-            model.addAttribute("rightCat", pairs.get(0).getRightCat());
-            model.addAttribute("pair", pairs.get(0));
+            model.addAttribute("leftCat", catConvertor.convertToCatDto(pairs.get(0).getLeftCat()));
+            model.addAttribute("rightCat", catConvertor.convertToCatDto(pairs.get(0).getRightCat()));
+            model.addAttribute("pairId", pairs.get(0).getId());
         } else {
             model.addAttribute("emptyCatListError", "Not enough cats to participate");
         }
@@ -51,7 +56,10 @@ public class QuizService {
         });
     }
 
-    public String setRoundWinner(Cat cat, Model model, User user, CatsPair pair) {
+    public String setRoundWinner(CatDto catDto, Model model, UserDto userDto, Long pairId) {
+        User user = userRepo.findById(userDto.getId()).get();
+        Cat cat = catRepo.getById(catDto.getId());
+        CatsPair pair = catsPairRepo.getById(pairId);
         UserCatsPair userCatsPair = userCatsPairRepo.findByUserAndPair(user, pair);
         if (userCatsPair == null) {
             userCatsPair = new UserCatsPair(user, pair);
@@ -64,9 +72,9 @@ public class QuizService {
             return "redirect:/top";    
         } else {
             Collections.shuffle(userCatsPairWithoutWinner);
-            model.addAttribute("leftCat", userCatsPairWithoutWinner.get(0).getPair().getLeftCat());
-            model.addAttribute("rightCat", userCatsPairWithoutWinner.get(0).getPair().getRightCat());    
-            model.addAttribute("pair", userCatsPairWithoutWinner.get(0).getPair());    
+            model.addAttribute("leftCat", catConvertor.convertToCatDto(userCatsPairWithoutWinner.get(0).getPair().getLeftCat()));
+            model.addAttribute("rightCat", catConvertor.convertToCatDto(userCatsPairWithoutWinner.get(0).getPair().getRightCat()));
+            model.addAttribute("pairId", userCatsPairWithoutWinner.get(0).getPair().getId());
             
             return "quiz";
         }
@@ -85,7 +93,7 @@ public class QuizService {
         }
     }
 
-    public boolean isUserAlreadyPlayed(User user) {
-        return userCatsPairRepo.existsByUser(user);
+    public boolean isUserAlreadyPlayed(Long id) {
+        return userCatsPairRepo.existsByUser(userRepo.findById(id).get());
     }
 }

@@ -39,8 +39,8 @@
                 </div>
             </#if>
             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-            <#if pair??>
-                <input type="hidden" name="pairId" value="${pair.id}"/>
+            <#if pairId??>
+                <input type="hidden" name="pairId" value="${pairId}"/>
             </#if>
         </div>
     </form>

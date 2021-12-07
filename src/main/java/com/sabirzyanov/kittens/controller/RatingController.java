@@ -19,7 +19,7 @@ public class RatingController {
 
     @GetMapping
     public String rating(@AuthenticationPrincipal User user, Model model) {
-        model.addAttribute("userRating", ratingService.getUserRating(user));
+        model.addAttribute("userRating", ratingService.getUserRating(user.getId()));
         model.addAttribute("totalRating", ratingService.getTotalRating());
 
         return "top";

@@ -1,10 +1,14 @@
 package com.sabirzyanov.kittens.service;
 
+import com.sabirzyanov.kittens.DTO.CatDto;
+import com.sabirzyanov.kittens.DTO.UserDto;
+import com.sabirzyanov.kittens.convertor.CatConvertor;
 import com.sabirzyanov.kittens.domain.Cat;
 import com.sabirzyanov.kittens.domain.Role;
 import com.sabirzyanov.kittens.domain.User;
 import com.sabirzyanov.kittens.repository.CatRepo;
 import com.sabirzyanov.kittens.repository.UserRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,8 +21,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     @Value("${upload.path}")
     private String uploadPath;
@@ -27,13 +33,8 @@ public class UserService {
     private final UserRepo userRepository;
     private final CatRepo catRepo;
     private final HttpServletRequest request;
+    private final CatConvertor catConvertor;
 
-    public UserService(PasswordEncoder passwordEncoder, UserRepo userRepository, CatRepo catRepo, HttpServletRequest request) {
-        this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
-        this.catRepo = catRepo;
-        this.request = request;
-    }
 
     public String encodedPassword(String password) {
         return passwordEncoder.encode(password);
@@ -62,7 +63,7 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public void addCat(User user, String catName, MultipartFile file) throws IOException {
+    public void addCat(UserDto userDto, String catName, MultipartFile file) throws IOException {
         Cat cat;
         String realPath = request.getServletContext().getRealPath(uploadPath);
         if (file != null) {
@@ -76,14 +77,17 @@ public class UserService {
             String fileName = uuidFile + "." + file.getOriginalFilename();
 
             file.transferTo(new File(realPath + "/" + fileName));
-            cat = new Cat(catName, userRepository.findByUsername(user.getUsername()), fileName);
+            cat = new Cat(catName, userRepository.findByUsername(userDto.getUsername()), fileName);
         } else
-            cat = new Cat(catName, userRepository.findByUsername(user.getUsername()));
+            cat = new Cat(catName, userRepository.findByUsername(userDto.getUsername()));
 
         catRepo.save(cat);
     }
 
-    public List<Cat> findCatsByUser(User user) {
-        return catRepo.findAllByUser(user);
+    public List<CatDto> findCatsByUser(Long id) {
+        return catRepo.findAllByUser(userRepository.findById(id).get())
+                .stream()
+                .map(catConvertor::convertToCatDto)
+                .collect(Collectors.toList());
     }
 }

@@ -1,9 +1,12 @@
 package com.sabirzyanov.kittens.controller;
 
+import com.sabirzyanov.kittens.DTO.CatDto;
+import com.sabirzyanov.kittens.convertor.CatConvertor;
+import com.sabirzyanov.kittens.convertor.UserConvertor;
 import com.sabirzyanov.kittens.domain.Cat;
-import com.sabirzyanov.kittens.domain.CatsPair;
 import com.sabirzyanov.kittens.domain.User;
 import com.sabirzyanov.kittens.service.QuizService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,18 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/quiz")
 public class QuizController {
 
     final QuizService quizService;
-
-    public QuizController(QuizService quizService) {
-        this.quizService = quizService;
-    }
+    final UserConvertor userConvertor;
+    final CatConvertor catConvertor;
 
     @GetMapping
     public String quiz(@AuthenticationPrincipal User user, Model model) {
-        if (quizService.isUserAlreadyPlayed(user)) {
+        if (quizService.isUserAlreadyPlayed(user.getId())) {
             model.addAttribute("startButton", "Перепройти");
         } else
             model.addAttribute("startButton", "Старт");
@@ -34,7 +36,7 @@ public class QuizController {
 
     @PostMapping(params = "quiz")
     public String startQuiz(@AuthenticationPrincipal User user, Model model) {
-        quizService.startQuiz(model, user);
+        quizService.startQuiz(model, userConvertor.convertToUserDto(user));
 
         return "quiz";
     }
@@ -43,19 +45,19 @@ public class QuizController {
     public String leftCat(
             @AuthenticationPrincipal User user,
             @RequestParam("leftCatId") Cat cat,
-            @RequestParam("pairId") CatsPair pair,
+            @RequestParam("pairId") Long pairId,
             Model model
     ) {
-        return quizService.setRoundWinner(cat, model, user, pair);
+        return quizService.setRoundWinner(catConvertor.convertToCatDto(cat), model, userConvertor.convertToUserDto(user), pairId);
     }
 
     @PostMapping(params = "rightCat")
     public String rightCat(
             @AuthenticationPrincipal User user,
             @RequestParam("rightCatId") Cat cat,
-            @RequestParam("pairId") CatsPair pair,
+            @RequestParam("pairId") Long pairId,
             Model model
     ) {
-        return quizService.setRoundWinner(cat, model, user, pair);
+        return quizService.setRoundWinner(catConvertor.convertToCatDto(cat), model, userConvertor.convertToUserDto(user), pairId);
     }
 }
